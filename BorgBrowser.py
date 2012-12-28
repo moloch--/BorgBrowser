@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 '''
+
 Created on Dec 22, 2012
 
 @author: moloch
-
-A browser-like Python class that can be configured to automatically change
-user agent, and proxy.  Automatically parses HTML and JSON responses and exposes
-Python objects for easy manipulation and data extraction.  Resistance is futile.
 
 ----------------------------------------------------------------------------------
     Copyright 2012
@@ -23,6 +20,11 @@ Python objects for easy manipulation and data extraction.  Resistance is futile.
     See the License for the specific language governing permissions and
     limitations under the License.
 ----------------------------------------------------------------------------------
+
+A browser-like Python class that can be configured to automatically change
+user agent, and proxy.  Automatically parses HTML and JSON responses and exposes
+Python objects for easy manipulation and data extraction.  Resistance is futile.
+
 '''
 
 import time
@@ -56,7 +58,6 @@ class BorgBrowser(object):
         self.cookies = {}
         self.cert_validation = False
         self.follow_redirects = True
-        self.random_proxy = False
         self.__response__ = None
         self.__proxies__ = []
         self.proxy_traffic = False
@@ -79,9 +80,15 @@ class BorgBrowser(object):
     @property
     def page(self):
         if self.__response__.status_code == requests.codes.ok:
-            return BeautifulSoup(self.__response__.text)
+            if 'application/json' in self.__response__.headers:
+                return json.loads(self.__response__.text)
+            else:
+                return BeautifulSoup(self.__response__.text)
         else:
             return None
+
+    def spider(self):
+        pass
 
     def get(self, uri, **parameters):
         self.history.append(uri)
@@ -95,17 +102,32 @@ class BorgBrowser(object):
 
     def post(self, uri, **parameters):
         self.history.append(uri)
-        self.__response__ = requests.post(uri, cookies=self.cookies, params=parameters, verify=self.cert_validation)
+        self.__response__ = requests.post(
+            uri, 
+            cookies=self.cookies, 
+            params=parameters, 
+            verify=self.cert_validation
+        )
         return self.__response__
 
     def put(self, uri, **parameters):
         self.history.append(uri)
-        self.__response__ = requests.post(uri, cookies=self.cookies, params=parameters, verify=self.cert_validation)
+        self.__response__ = requests.post(
+            uri, 
+            cookies=self.cookies, 
+            params=parameters, 
+            verify=self.cert_validation
+        )
         return self.__response__
 
     def delete(self, uri, **parameters):
         self.history.append(uri)
-        self.__response__ = requests.post(uri, cookies=self.cookies, params=parameters, verify=self.cert_validation)
+        self.__response__ = requests.post(
+            uri, 
+            cookies=self.cookies, 
+            params=parameters, 
+            verify=self.cert_validation
+        )
         return self.__response__
 
     def head(self, uri, **parameters):
